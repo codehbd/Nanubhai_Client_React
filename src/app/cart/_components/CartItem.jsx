@@ -36,9 +36,9 @@ export default function CartItem({ item }) {
     <div key={item?.productId} className="p-4 flex items-start relative">
       {/* Product Image */}
       <div className="w-24 h-24 relative rounded-md overflow-hidden shrink-0">
-        {item?.image && (
+        {(item?.varient?.image || item?.image) && (
           <img
-            src={getImageUrl(item?.image)}
+            src={getImageUrl(item?.varient?.image || item?.image)}
             alt={item?.name}
             className="object-cover"
             sizes="96px"

@@ -25,8 +25,8 @@ export default function CategoryBannerProducts({ id, categoryName }) {
     error,
   } = useGetProductsQuery({
     location: "",
-    type: undefined,
-    name: undefined,
+    type: "",
+    name: "",
     page: 1,
     limit: 5,
     category: id,
@@ -43,25 +43,29 @@ export default function CategoryBannerProducts({ id, categoryName }) {
   } else if (!dataProducts?.products?.length) {
     content = <NoData message="No category products available." />;
   } else {
+    const bannerImages = dataProducts?.products[0]?.images?.filter((img) => img?.image)?.map((img) => ({
+      image: getImageUrl(img.image),
+      _id: img._id,
+    })) || [];
+
     content = (
       <>
-        <CategoryBannerSlider
-          images={dataProducts?.products[0]?.images?.map((img) => ({
-            image: getImageUrl(img.image),
-            _id: img._id,
-          }))}
-        />
+        {bannerImages.length > 0 && (
+          <CategoryBannerSlider images={bannerImages} />
+        )}
 
-        <div className="-mt-40 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 px-2 sm:px-4">
-            {dataProducts?.products?.map((product, index) => (
-              <ProductCard key={product._id} product={product} index={index} />
-            ))}
-          </div>
+        <div className={bannerImages.length > 0 ? "-mt-40" : ""}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 px-2 sm:px-4">
+              {dataProducts?.products?.map((product, index) => (
+                <ProductCard key={product._id} product={product} index={index} />
+              ))}
+            </div>
 
-          {/* CTA Button */}
-          <div className="mt-10 text-center w-full flex justify-center">
-            <LinkButton link={`/products?category=${id}`}>View All</LinkButton>
+            {/* CTA Button */}
+            <div className="mt-10 text-center w-full flex justify-center">
+              <LinkButton link={`/products?category=${id}`}>View All</LinkButton>
+            </div>
           </div>
         </div>
       </>

@@ -13,8 +13,10 @@ import { addWishlistItem } from "../../../redux/features/wishlist/wishlistSlice"
 import { useAddToCartMutation } from "../../../redux/features/cart/cartApiSlice";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay } from "swiper/modules";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 export default function ProductDetailCard({ product }) {
   const [addToCart] = useAddToCartMutation();
@@ -44,6 +46,7 @@ export default function ProductDetailCard({ product }) {
         quantity,
         guestId: getOrCreateGuestId(),
         userId: user?._id ?? "",
+        image: selectedVariant?.image || product.images[0]?.image,
       }).unwrap();
       toast.success("Product added to cart");
       setQuantity(1);
@@ -60,6 +63,7 @@ export default function ProductDetailCard({ product }) {
         quantity,
         guestId: getOrCreateGuestId(),
         userId: user?._id ?? "",
+        image: selectedVariant?.image || product.images[0]?.image,
       }).unwrap();
       toast.success("Product added to cart");
       navigate("/cart");
@@ -137,12 +141,18 @@ export default function ProductDetailCard({ product }) {
             /> */}
             {/* Main Image Slider */}
 <Swiper
-  modules={[Autoplay]}
+  modules={[Autoplay, Navigation, Pagination]}
   autoplay={{
     delay: 3000,
-    disableOnInteraction: false,
+    disableOnInteraction: true,
   }}
   loop
+  grabCursor={true}
+  slidesPerView={1}
+  touchRatio={1}
+  touchAngle={45}
+  navigation={true}
+  pagination={{ clickable: true }}
   onSlideChange={(swiper) => setCurrentImageIndex(swiper.realIndex)}
   className="w-full h-full"
 >
@@ -163,7 +173,7 @@ export default function ProductDetailCard({ product }) {
           </div>
 
           {/* Image Thumbnails */}
-          <div className="flex justify-center flex-wrap gap-2">
+          <div className="hidden md:flex justify-center flex-wrap gap-2">
             {product.images.map((imgVal, index) => (
               <button
                 key={imgVal._id}
@@ -181,6 +191,35 @@ export default function ProductDetailCard({ product }) {
                 />
               </button>
             ))}
+          </div>
+
+          {/* Mobile Image Thumbnails Slider */}
+          <div className="md:hidden w-full">
+            <Swiper
+              slidesPerView="auto"
+              spaceBetween={8}
+              grabCursor={true}
+              className="w-full"
+            >
+              {product.images.map((imgVal, index) => (
+                <SwiperSlide key={imgVal._id} style={{ width: "auto" }}>
+                  <button
+                    onClick={() => handleSlideCurrentImage(index)}
+                    className={`w-14 h-14 rounded-md overflow-hidden border-2 transition-all duration-300 ${
+                      index === currentImageIndex
+                        ? "border-primary scale-105"
+                        : "border-gray-200 hover:border-gray-400"
+                    }`}
+                  >
+                    <img
+                      src={getImageUrl(imgVal.image)}
+                      alt={`Thumbnail ${index + 1}`}
+                      className="object-cover w-full h-full"
+                    />
+                  </button>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
 
@@ -228,7 +267,8 @@ export default function ProductDetailCard({ product }) {
               <h3 className="text-base font-extrabold text-black mb-2">
                 Choose Variant
               </h3>
-              <div className="flex gap-3 flex-wrap">
+              {/* Desktop View - Flex */}
+              <div className="hidden md:flex gap-3 flex-wrap">
                 {product.varients.map((variant) => (
                   <button
                     key={variant._id}
@@ -254,6 +294,43 @@ export default function ProductDetailCard({ product }) {
                     </span>
                   </button>
                 ))}
+              </div>
+
+              {/* Mobile View - Slider */}
+              <div className="md:hidden overflow-hidden">
+                <Swiper
+                  slidesPerView={1.5}
+                  spaceBetween={12}
+                  grabCursor={true}
+                  className="w-full"
+                >
+                  {product.varients.map((variant) => (
+                    <SwiperSlide key={variant._id}>
+                      <button
+                        onClick={() => handleVarient(variant)}
+                        className={`p-2 border rounded-md flex flex-col items-center transition-all w-full ${
+                          selectedVariant?._id === variant._id
+                            ? "border-blue-600 bg-blue-50"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        <img
+                          src={getImageUrl(variant.image)}
+                          alt={variant.sku}
+                          className="w-[60px] h-[60px] object-cover rounded"
+                        />
+                        <span className="text-xs mt-2 text-gray-800 font-medium">
+                          ৳ {variant.price}
+                        </span>
+                        <span className="text-[10px] text-gray-500 mt-1">
+                          {variant.stock > 0
+                            ? `In Stock (${variant.stock})`
+                            : "Out of Stock"}
+                        </span>
+                      </button>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
               </div>
             </div>
           )}
