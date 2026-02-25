@@ -101,13 +101,13 @@ export default function ProductCard({ product, index }) {
 
         <div className="mt-auto">
           <div className="flex justify-between items-center">
-            <div>
+            <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-black">
                 ৳ {finalPrice}
               </span>
-              {finalPrice < originalPrice && (
-                <span className="ml-2 text-xs text-gray-500 line-through">
-                  ৳ {originalPrice}
+              {product?.previousPrice && product.previousPrice > finalPrice && (
+                <span className="text-xs text-gray-500 line-through">
+                  ৳ {product.previousPrice}
                 </span>
               )}
             </div>

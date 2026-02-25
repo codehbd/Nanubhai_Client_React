@@ -135,9 +135,10 @@ export function applyDiscounts(item) {
 
   return {
     original,
-    final: Math.max(final + extraPrice || 0, 0),
+    final: Math.max(final + (extraPrice * quantity) || 0, 0),
     applied,
     savings: original - final,
+    totalExtraPrice: extraPrice * quantity,
   };
 }
 

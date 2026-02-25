@@ -126,50 +126,36 @@ export default function ProductDetailCard({ product }) {
               <Heart className="h-5 w-5 text-white" strokeWidth={2} />
             </button>
 
-            {/* Main Image */}
-            {/* <img
-              src={
-                selectedVariant?.image
-                  ? getImageUrl(selectedVariant.image)
-                  : product.images[currentImageIndex]
-                  ? getImageUrl(product.images[currentImageIndex].image)
-                  : ""
-              }
-              alt={product.name}
-              className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            /> */}
             {/* Main Image Slider */}
-<Swiper
-  modules={[Autoplay, Navigation, Pagination]}
-  autoplay={{
-    delay: 3000,
-    disableOnInteraction: true,
-  }}
-  loop
-  grabCursor={true}
-  slidesPerView={1}
-  touchRatio={1}
-  touchAngle={45}
-  navigation={true}
-  pagination={{ clickable: true }}
-  onSlideChange={(swiper) => setCurrentImageIndex(swiper.realIndex)}
-  className="w-full h-full"
->
-  {(selectedVariant?.image
-    ? [{ image: selectedVariant.image }]
-    : product.images
-  ).map((img, index) => (
-    <SwiperSlide key={index}>
-      <img
-        src={getImageUrl(img.image)}
-        alt={product.name}
-        className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
-      />
-    </SwiperSlide>
-  ))}
-</Swiper>
-
+            <Swiper
+              modules={[Autoplay, Navigation, Pagination]}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: true,
+              }}
+              loop
+              grabCursor={true}
+              slidesPerView={1}
+              touchRatio={1}
+              touchAngle={45}
+              navigation={true}
+              pagination={{ clickable: true }}
+              onSlideChange={(swiper) => setCurrentImageIndex(swiper.realIndex)}
+              className="w-full h-full"
+            >
+              {(selectedVariant?.image
+                ? [{ image: selectedVariant.image }]
+                : product.images
+              ).map((img, index) => (
+                <SwiperSlide key={index}>
+                  <img
+                    src={getImageUrl(img.image)}
+                    alt={product.name}
+                    className="object-cover w-full h-full transition-transform duration-300 hover:scale-105"
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
 
           {/* Image Thumbnails */}
@@ -243,20 +229,37 @@ export default function ProductDetailCard({ product }) {
 
           {/* Price Section */}
           <div className="flex justify-between items-center">
-            <div className="flex items-center mb-2">
-              <span className="text-xl font-bold text-black">
-                ৳ {finalPrice}
+            <div className="flex items-center mb-2 gap-2 flex-wrap">
+              {/* Final Price */}
+              <span className="text-2xl font-bold text-red-600">
+                ৳ {Number(finalPrice).toFixed(2)}
               </span>
-              {finalPrice < originalPrice && (
-                <span className="ml-2 text-sm text-gray-500 line-through">
-                  ৳ {originalPrice}
-                </span>
+
+              {/* Previous Price (Cut) */}
+              {Number(originalPrice) > Number(finalPrice) && (
+                <>
+                  <span className="text-sm text-gray-500 line-through">
+                    ৳ {Number(originalPrice).toFixed(2)}
+                  </span>
+
+                  {/* Discount Percentage */}
+                  <span className="text-xs font-semibold text-green-600 bg-green-100 px-2 py-1 rounded">
+                    {Math.round(
+                      ((Number(originalPrice) - Number(finalPrice)) /
+                        Number(originalPrice)) *
+                        100
+                    )}
+                    % OFF
+                  </span>
+                </>
               )}
             </div>
+
+            {/* Extra Price */}
             {product.extraPrice && (
               <span className="flex items-center text-gray-500">
-                <HandCoins size={20} className="mr-1" /> + ৳{" "}
-                {product.extraPrice}
+                <HandCoins size={20} className="mr-1" />
+                + ৳ {Number(product.extraPrice).toFixed(2)}
               </span>
             )}
           </div>

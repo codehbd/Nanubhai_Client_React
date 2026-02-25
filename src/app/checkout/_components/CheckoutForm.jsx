@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import OrderSummery from "./OrderSummery";
@@ -38,7 +38,18 @@ export default function CheckoutForm({ addresses }) {
 
   const shipping = 60; // Fixed shipping cost
   const discount = 0;
-  const total = data?.cart?.total + shipping;
+
+  // Calculate correct cart total with extraPrice multiplied by quantity
+  const correctCartTotal = useMemo(() => {
+    if (!data?.items) return 0;
+    return data.items.reduce((total, item) => {
+      const baseTotal = (item?.price || 0) * (item?.quantity || 1);
+      const totalExtraPrice = (item?.extraPrice || 0) * (item?.quantity || 1);
+      return total + baseTotal + totalExtraPrice;
+    }, 0);
+  }, [data?.items]);
+
+  const total = correctCartTotal + shipping;
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -59,7 +70,7 @@ export default function CheckoutForm({ addresses }) {
           cartId: data?.cart?._id,
           phone: formData?.phone,
           shippingAddressId,
-          totalAmount: data?.cart?.total,
+          totalAmount: correctCartTotal,
           shippingAmount: shipping,
           paymentType,
         },
@@ -194,7 +205,7 @@ export default function CheckoutForm({ addresses }) {
             )}
             {/* Order Summary */}
             <OrderSummery
-              subtotal={data?.cart?.total}
+              subtotal={correctCartTotal}
               discount={discount}
               shipping={shipping}
               total={total}
@@ -221,7 +232,7 @@ export default function CheckoutForm({ addresses }) {
           <>
             {/* Order Summary for Payment Tab */}
             <OrderSummery
-              subtotal={data?.cart?.total}
+              subtotal={correctCartTotal}
               discount={discount}
               shipping={shipping}
               total={total}

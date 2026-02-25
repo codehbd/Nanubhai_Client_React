@@ -145,7 +145,7 @@ export default function ProductPage() {
     <>
       <Helmet>
         <title>
-          {dataProduct?.produc?.name || id} | Nanuvaier Rosona Kothon - Your
+          {dataProduct?.product?.name || id} | Nanuvaier Rosona Kothon - Your
           Online Shop
         </title>
         <meta name="description" content="An online store for all your needs" />

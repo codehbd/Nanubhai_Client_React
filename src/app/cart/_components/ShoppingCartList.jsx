@@ -1,5 +1,5 @@
 import { ShoppingCart as CartIcon, Frown } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import CartItem from "./CartItem";
 import toast from "react-hot-toast";
@@ -22,6 +22,16 @@ export default function ShoppingCartList() {
     userId: user?._id,
     guestId,
   });
+
+  // Calculate correct cart total with extraPrice multiplied by quantity
+  const correctCartTotal = useMemo(() => {
+    if (!data?.items) return 0;
+    return data.items.reduce((total, item) => {
+      const baseTotal = (item?.price || 0) * (item?.quantity || 1);
+      const totalExtraPrice = (item?.extraPrice || 0) * (item?.quantity || 1);
+      return total + baseTotal + totalExtraPrice;
+    }, 0);
+  }, [data?.items]);
 
   const handleCouponApply = async () => {
     if (!user) {
@@ -122,7 +132,7 @@ export default function ShoppingCartList() {
           className="font-extrabold text-lg text-white!"
           style={{ color: "white" }}
         >
-          Total - ৳{data?.cart?.total}
+          Total - ৳{correctCartTotal}
         </div>
         <button
           onClick={() => (user ? navigate("/checkout") : navigate("/login"))}

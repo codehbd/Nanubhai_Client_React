@@ -11,6 +11,11 @@ export default function CartItem({ item }) {
   const [changeQuantityCart] = useChangeQuantityCartMutation();
   const [deleteCart] = useDeleteCartMutation();
 
+  // Calculate correct item total with extraPrice multiplied by quantity
+  const baseTotal = (item?.price || 0) * (item?.quantity || 1);
+  const totalExtraPrice = (item?.extraPrice || 0) * (item?.quantity || 1);
+  const correctItemTotal = baseTotal + totalExtraPrice;
+
   const updateQuantity = async (type, itemId) => {
     try {
       await changeQuantityCart({ id: itemId, bodyData: { type } }).unwrap();
@@ -63,33 +68,37 @@ export default function CartItem({ item }) {
           </Link>{" "}
         </div>
         <p className="text-base md:text-lg font-extrabold text-black mt-2">
-          <span className="flex items-center gap-2">
-            {/* Unit Price × Quantity */}
+          <span className="flex items-center gap-2 flex-wrap">
+            {/* Unit Price × Quantity = Base Total */}
             <span>৳{item?.price}</span>
             <span className="text-gray-400 text-sm font-medium">×</span>
             <span>{item?.quantity}</span>
             <span>=</span>
+            <span className="text-black font-extrabold">৳{item?.price * item?.quantity}</span>
 
-            {/* Final Price */}
-            <span className="text-black font-extrabold">৳{item?.final}</span>
+            {/* Extra Price (if exists) */}
+            {item?.extraPrice > 0 && (
+              <>
+                <span className="text-gray-400 text-sm">+</span>
+                <span className="text-amber-600 text-sm">
+                  ৳{(item.extraPrice * item.quantity).toFixed(2)}
+                  <span className="text-xs text-gray-500 ml-1">(handling)</span>
+                </span>
+              </>
+            )}
 
             {/* Original Price (strikethrough) */}
             {item?.original > item?.final && (
-              <span className="line-through text-gray-500 text-sm">
+              <span className="line-through text-gray-500 text-sm ml-2">
                 ৳{item?.original}
               </span>
             )}
           </span>
 
-          {/* Extra Price (optional) */}
-          {item?.extraPrice > 0 && (
-            <div className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-xs font-medium border border-amber-200">
-              <span className="text-[13px] font-semibold">
-                +৳{item.extraPrice}
-              </span>
-              <span className="opacity-80">(Extra)</span>
-            </div>
-          )}
+          {/* Item Total */}
+          <div className="mt-1 text-sm font-medium text-gray-600">
+            Item Total: ৳{correctItemTotal}
+          </div>
         </p>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
           {/* Quantity Controls */}
