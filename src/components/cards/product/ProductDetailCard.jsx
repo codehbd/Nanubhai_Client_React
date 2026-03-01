@@ -1,5 +1,5 @@
 import { HandCoins, Heart, ShoppingCart } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
 import Rating from "./Rating";
 import { useSelector, useDispatch } from "react-redux";
@@ -26,6 +26,7 @@ export default function ProductDetailCard({ product }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
+  const mainSwiperRef = useRef(null);
 
   // Final price depending on variant
   const { finalPrice, originalPrice } = useMemo(() => {
@@ -89,12 +90,64 @@ export default function ProductDetailCard({ product }) {
   const handleVarient = (variant) => {
     setSelectedVariant(variant);
     setCurrentImageIndex(0);
+    // Slide to the first image when variant is selected
+    if (mainSwiperRef.current) {
+      mainSwiperRef.current.slideTo(0);
+    }
   };
 
   const handleSlideCurrentImage = (index) => {
     setCurrentImageIndex(index);
     setSelectedVariant(null);
+    // Slide to the selected image
+    if (mainSwiperRef.current) {
+      mainSwiperRef.current.slideTo(index);
+    }
   };
+
+  // Get all unique images from product and all variants
+  const allImages = useMemo(() => {
+    const productImages = product.images || [];
+    const variantImages = (product.varients || [])
+      .filter((v) => v.image)
+      .map((v) => ({ image: v.image, _id: `variant-${v._id}` }));
+
+    // Combine product images and variant images, removing duplicates
+    const combined = [...productImages];
+    variantImages.forEach((vImg) => {
+      const exists = combined.some((img) => img.image === vImg.image);
+      if (!exists) {
+        combined.push(vImg);
+      }
+    });
+    return combined;
+  }, [product.images, product.varients]);
+
+  // Get the current images to display based on variant selection
+  // When variant is selected, show that variant image first, then all other images
+  const currentImages = useMemo(() => {
+    if (selectedVariant?.image) {
+      // Find the selected variant image in allImages
+      const selectedImage = allImages.find(
+        (img) => img.image === selectedVariant.image
+      );
+      if (selectedImage) {
+        // Move selected variant image to first position
+        const otherImages = allImages.filter(
+          (img) => img.image !== selectedVariant.image
+        );
+        return [selectedImage, ...otherImages];
+      }
+    }
+    return allImages;
+  }, [selectedVariant, allImages]);
+
+  // Sync swiper when currentImageIndex changes externally
+  useEffect(() => {
+    if (mainSwiperRef.current && !selectedVariant) {
+      mainSwiperRef.current.slideTo(currentImageIndex);
+    }
+  }, [currentImageIndex, selectedVariant]);
 
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden p-4 md:p-6 max-w-4xl mx-auto">
@@ -128,26 +181,27 @@ export default function ProductDetailCard({ product }) {
 
             {/* Main Image Slider */}
             <Swiper
+              key={selectedVariant?._id || "product-images"}
               modules={[Autoplay, Navigation, Pagination]}
               autoplay={{
                 delay: 3000,
                 disableOnInteraction: true,
               }}
-              loop
+              loop={currentImages.length > 1}
               grabCursor={true}
               slidesPerView={1}
               touchRatio={1}
               touchAngle={45}
-              navigation={true}
-              pagination={{ clickable: true }}
+              navigation={currentImages.length > 1}
+              pagination={currentImages.length > 1 ? { clickable: true } : false}
+              onSwiper={(swiper) => {
+                mainSwiperRef.current = swiper;
+              }}
               onSlideChange={(swiper) => setCurrentImageIndex(swiper.realIndex)}
               className="w-full h-full"
             >
-              {(selectedVariant?.image
-                ? [{ image: selectedVariant.image }]
-                : product.images
-              ).map((img, index) => (
-                <SwiperSlide key={index}>
+              {currentImages.map((img, index) => (
+                <SwiperSlide key={img._id || index}>
                   <img
                     src={getImageUrl(img.image)}
                     alt={product.name}
@@ -160,9 +214,9 @@ export default function ProductDetailCard({ product }) {
 
           {/* Image Thumbnails */}
           <div className="hidden md:flex justify-center flex-wrap gap-2">
-            {product.images.map((imgVal, index) => (
+            {currentImages.map((imgVal, index) => (
               <button
-                key={imgVal._id}
+                key={imgVal._id || index}
                 onClick={() => handleSlideCurrentImage(index)}
                 className={`w-14 h-14 rounded-md overflow-hidden border-2 transition-all duration-300 ${
                   index === currentImageIndex
@@ -187,8 +241,8 @@ export default function ProductDetailCard({ product }) {
               grabCursor={true}
               className="w-full"
             >
-              {product.images.map((imgVal, index) => (
-                <SwiperSlide key={imgVal._id} style={{ width: "auto" }}>
+              {currentImages.map((imgVal, index) => (
+                <SwiperSlide key={imgVal._id || index} style={{ width: "auto" }}>
                   <button
                     onClick={() => handleSlideCurrentImage(index)}
                     className={`w-14 h-14 rounded-md overflow-hidden border-2 transition-all duration-300 ${

@@ -49,7 +49,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center">
                 <Phone className="h-4 w-4 mr-2 text-primary" />
-                <span className="text-gray-300 text-sm">+1 (123) 456-7890</span>
+                <span className="text-gray-300 text-sm">+880 1927-347434</span>
               </li>
               <li className="flex items-center">
                 <Mail className="h-4 w-4 mr-2 text-primary" />
@@ -57,7 +57,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center">
                 <MapPin className="h-4 w-4 mr-2 text-primary" />
-                <span className="text-gray-300 text-sm">123 Main St, City</span>
+                <span className="text-gray-300 text-sm">Dhaka,Bangladesh</span>
               </li>
             </ul>
           </div>
@@ -103,7 +103,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-700 mt-8 pt-6 text-center">
           <p className="text-gray-400 text-sm">
-            © 2024 NanuBhai. All rights reserved.
+            © 2026 NanuBhai. All rights reserved.
           </p>
         </div>
       </div>

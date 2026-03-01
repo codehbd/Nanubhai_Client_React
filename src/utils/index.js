@@ -70,7 +70,7 @@ export function calculateDiscountedPrice(product, priceToUse) {
 
   return {
     originalPrice: priceToUse,
-    finalPrice: Math.round(finalPrice), // rounded to nearest integer
+    finalPrice: finalPrice,
   };
 }
 
