@@ -3,6 +3,8 @@ import BottomNavbar from "../components/layout/BottomNavbar";
 import Footer from "../components/layout/Footer";
 import ChatButton from "../components/button/ChatButton";
 import { Outlet } from "react-router-dom";
+import LocationModal from "../app/_components/LocationModal";
+import LocationModalInitializer from "../app/_components/LocationModalInitializer";
 
 export default function MainLayout() {
   return (
@@ -14,6 +16,8 @@ export default function MainLayout() {
       <BottomNavbar />
       <ChatButton />
       <Footer />
+      <LocationModal />
+      <LocationModalInitializer />
     </div>
   );
 }
